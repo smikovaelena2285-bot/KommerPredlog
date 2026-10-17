@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="ru" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Елена Смыкова | CFO на аутсорсинге</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Three.js for 3D animation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            dark: '#0B0D12',
+                            darker: '#06080b',
+                            cyan: '#25BDE4',
+                            cyanHover: '#1ca5c9',
+                            light: '#F8FAFC',
+                            cardBg: '#F0F5F9',
+                            gray: '#8a94a6'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0B0D12; }
+        ::-webkit-scrollbar-thumb { background: #25BDE4; }
+
+        .fade-in-up {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .fade-in-up.visible { opacity: 1; transform: translateY(0); }
+
+        .hero-diagonal-overlay {
+            clip-path: polygon(0 0, 100% 0, 75% 100%, 0% 100%);
+            background: linear-gradient(90deg, rgba(11,13,18,0.95) 0%, rgba(11,13,18,0.8) 50%, transparent 100%);
+        }
+        @media (max-width: 768px) {
+            .hero-diagonal-overlay {
+                clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+                background: linear-gradient(180deg, rgba(11,13,18,0.9) 0%, rgba(11,13,18,0.7) 100%);
+            }
+        }
+
+        .input-line {
+            background: transparent; border: none; border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 0; color: white; transition: border-color 0.3s;
+        }
+        .input-line:focus { outline: none; border-bottom-color: #25BDE4; }
+
+        #canvas-container {
+            width: 100%; height: 400px; position: relative; overflow: hidden;
+            background: radial-gradient(circle at center, #111827 0%, #0B0D12 100%);
+        }
+
+        #toast {
+            visibility: hidden; opacity: 0; transition: visibility 0s, opacity 0.5s linear;
+        }
+        #toast.show { visibility: visible; opacity: 1; }
+
+        input[type=range].calc-slider { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type=range].calc-slider::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 28px; width: 28px; border-radius: 50%;
+            background: #25BDE4; cursor: pointer; margin-top: -12px;
+            box-shadow: 0 0 15px rgba(37, 189, 228, 0.6); transition: transform 0.1s;
+        }
+        input[type=range].calc-slider::-webkit-slider-thumb:hover { transform: scale(1.1); }
+        input[type=range].calc-slider::-webkit-slider-runnable-track {
+            width: 100%; height: 4px; cursor: pointer; background: rgba(255, 255, 255, 0.2); border-radius: 2px;
+        }
+        
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* ICP Wizard Transitions */
+        .icp-step {
+            display: none;
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+        }
+        .icp-step.active { display: block; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .progress-bar-fill {
+            transition: width 0.4s ease-in-out;
+        }
+    </style>
+</head>
+<body class="font-sans text-brand-dark bg-brand-light antialiased overflow-x-hidden">
+
+    <!-- Header -->
+    <header id="main-header" class="fixed top-0 left-0 w-full z-50 py-6 px-6 md:px-12 flex justify-between items-center transition-all duration-300">
+        <div class="text-xl font-bold tracking-tight uppercase flex items-center gap-2 text-white">
+            <span>Елена Смыкова</span> 
+            <span class="font-light hidden sm:inline-block">| CFO</span>
+        </div>
+        
+        <nav class="hidden md:flex gap-8 text-xs font-semibold uppercase tracking-widest text-white/90">
+            <a href="#services" class="hover:text-white transition-colors border-b-2 border-transparent hover:border-white pb-1">Услуги</a>
+            <a href="#video-presentation" class="hover:text-white transition-colors border-b-2 border-transparent hover:border-white pb-1">Опыт</a>
+            <a href="#icp-wizard" class="hover:text-white transition-colors border-b-2 border-transparent hover:border-white pb-1">Калькулятор ИКЕ</a>
+            <a href="#3d-concept" class="hover:text-white transition-colors border-b-2 border-transparent hover:border-white pb-1">Система</a>
+            <a href="#about" class="hover:text-white transition-colors border-b-2 border-transparent hover:border-white pb-1">Обо мне</a>
+        </nav>
+
+        <div class="flex items-center gap-6">
+            <a href="tel:+79990000000" class="hidden sm:inline-block text-sm font-semibold text-white hover:text-brand-cyan transition-colors">+7 (999) 000-00-00</a>
+            <a href="#contacts" class="p-3 bg-white/10 rounded-full hover:bg-white/20 transition-colors backdrop-blur-sm">
+                <i data-lucide="phone-call" class="w-5 h-5 text-white"></i>
+            </a>
+        </div>
+    </header>
+
+    <!-- SCREEN 1. Hero -->
+    <section id="hero" class="relative min-h-screen flex flex-col justify-center bg-brand-dark text-white overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?auto=format&fit=crop&w=1920&q=80" alt="Финансовые графики" class="w-full h-full object-cover contrast-125 brightness-110" />
+            <div class="absolute inset-0 hero-diagonal-overlay"></div>
+        </div>
+
+        <div class="relative z-20 w-full max-w-7xl mx-auto px-6 md:px-12 pt-32 lg:pt-40 pb-0 flex flex-col lg:flex-row items-end justify-between gap-8 h-full min-h-screen">
+            <div class="w-full lg:w-[45%] max-w-2xl fade-in-up pb-16 lg:pb-32 z-20">
+                <h1 class="text-5xl md:text-[5rem] font-extrabold leading-[1.05] tracking-tight mb-8">
+                    Управление<span class="text-brand-cyan">.</span><br>
+                    Финансы<span class="text-brand-cyan">.</span><br>
+                    Контроль<span class="text-brand-cyan">.</span>
+                </h1>
+                <p class="text-lg md:text-xl text-white/90 mb-10 max-w-xl leading-relaxed font-medium">
+                    <strong class="font-bold text-white">CFO на аутсорсинге.</strong> Переход от хаотичного интуитивного управления к прозрачной системе на основе доверенных цифр.
+                </p>
+                <a href="#icp-wizard" class="inline-flex items-center justify-center px-8 py-4 bg-brand-cyan text-brand-dark text-sm font-bold uppercase tracking-widest hover:bg-white transition-all shadow-[0_0_20px_rgba(37,189,228,0.4)]">
+                    Собрать предложение
+                </a>
+            </div>
+
+            <div class="w-full lg:w-[55%] flex justify-center lg:justify-end items-end fade-in-up relative z-10" style="transition-delay: 0.2s;">
+                <div class="relative block w-full group">
+                    <div class="absolute inset-0 bg-brand-cyan/20 blur-[120px] rounded-full group-hover:bg-brand-cyan/40 transition-colors duration-700"></div>
+                    <img src="https://i.yapx.ru/eTB9G.png" alt="Елена Смыкова" class="relative z-10 w-full h-auto max-h-[85vh] object-contain object-bottom drop-shadow-[0_20px_50px_rgba(0,0,0,0.7)]">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SCREEN 2. Services Carousel -->
+    <section id="services" class="py-24 bg-[#06080b] relative overflow-hidden border-t border-white/5">
+        <div class="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-16 fade-in-up">
+                <div class="max-w-2xl">
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="w-8 h-[2px] bg-brand-cyan"></div>
+                        <span class="uppercase tracking-widest text-xs font-bold text-gray-400">С какими задачами я работаю</span>
+                    </div>
+                    <h2 class="text-3xl md:text-5xl font-bold text-white leading-tight">
+                        Решаю задачи бизнеса на языке цифр
+                    </h2>
+                </div>
+                <div class="flex gap-4 mt-8 md:mt-0 shrink-0">
+                    <button id="prevBtn" class="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-brand-cyan hover:border-brand-cyan transition-all">
+                        <i data-lucide="chevron-left" class="w-6 h-6"></i>
+                    </button>
+                    <button id="nextBtn" class="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-brand-cyan hover:border-brand-cyan transition-all">
+                        <i data-lucide="chevron-right" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="relative fade-in-up">
+                <div id="services-carousel" class="flex gap-6 overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-8 scroll-smooth">
+                    <div class="snap-start shrink-0 w-[280px] md:w-[350px] bg-[#0B0D12] border border-white/10 p-8 rounded-sm hover:border-brand-cyan/50 transition-all group flex flex-col">
+                        <div class="w-14 h-14 bg-brand-cyan/10 rounded-full flex items-center justify-center mb-6 group-hover:bg-brand-cyan transition-colors shrink-0">
+                            <i data-lucide="layout-dashboard" class="w-7 h-7 text-brand-cyan group-hover:text-white transition-colors"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-4">Управленческий учёт</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed mb-8 flex-grow">Когда в компании есть бухгалтерские данные, но нет системы, которая помогает собственнику управлять прибылью, деньгами и эффективностью направлений.</p>
+                    </div>
+                    <div class="snap-start shrink-0 w-[280px] md:w-[350px] bg-[#0B0D12] border border-white/10 p-8 rounded-sm hover:border-brand-cyan/50 transition-all group flex flex-col">
+                        <div class="w-14 h-14 bg-brand-cyan/10 rounded-full flex items-center justify-center mb-6 group-hover:bg-brand-cyan transition-colors shrink-0">
+                            <i data-lucide="wallet" class="w-7 h-7 text-brand-cyan group-hover:text-white transition-colors"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-4">Cash flow и ликвидность</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed mb-8 flex-grow">Когда прибыль на бумаге есть, а в реальности бизнес живёт в кассовых разрывах, зависит от дорогого финансирования.</p>
+                    </div>
+                    <div class="snap-start shrink-0 w-[280px] md:w-[350px] bg-[#0B0D12] border border-white/10 p-8 rounded-sm hover:border-brand-cyan/50 transition-all group flex flex-col">
+                        <div class="w-14 h-14 bg-brand-cyan/10 rounded-full flex items-center justify-center mb-6 group-hover:bg-brand-cyan transition-colors shrink-0">
+                            <i data-lucide="bar-chart-2" class="w-7 h-7 text-brand-cyan group-hover:text-white transition-colors"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-4">Unit-экономика и маржа</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed mb-8 flex-grow">Когда выручка растёт, но неясно, где реальная маржа, какие каналы и сделки дают результат, а какие — скрыто уменьшают прибыль.</p>
+                    </div>
+                    <div class="snap-start shrink-0 w-[280px] md:w-[350px] bg-[#0B0D12] border border-white/10 p-8 rounded-sm hover:border-brand-cyan/50 transition-all group flex flex-col">
+                        <div class="w-14 h-14 bg-brand-cyan/10 rounded-full flex items-center justify-center mb-6 group-hover:bg-brand-cyan transition-colors shrink-0">
+                            <i data-lucide="shield-alert" class="w-7 h-7 text-brand-cyan group-hover:text-white transition-colors"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-white mb-4">Контроль сделок (Форензик)</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed mb-8 flex-grow">Когда нужно разобраться в спорной ситуации, проверить экономику крупной сделки, выявить скрытые потери или конфликт интересов.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SCREEN 3. Video Presentation -->
+    <section id="video-presentation" class="py-24 bg-brand-dark relative overflow-hidden border-t border-white/5">
+        <div class="max-w-7xl mx-auto px-6 md:px-12 relative z-10">
+            <div class="text-center mb-16 fade-in-up">
+                <div class="flex items-center justify-center gap-4 mb-4">
+                    <div class="w-8 h-[2px] bg-brand-cyan"></div>
+                    <span class="uppercase tracking-widest text-xs font-bold text-gray-400">Видеовизитка</span>
+                    <div class="w-8 h-[2px] bg-brand-cyan"></div>
+                </div>
+                <h2 class="text-3xl md:text-5xl font-bold text-white mb-6">
+                    Я не строю финансовую систему ради красивой отчётности
+                </h2>
+                <p class="text-gray-400 text-lg max-w-2xl mx-auto">
+                    Моя задача — чтобы у собственника появились ответы: где компания зарабатывает, где теряет деньги и как связать цифры с реальными управленческими действиями.
+                </p>
+            </div>
+            <div class="max-w-4xl mx-auto fade-in-up" style="transition-delay: 0.2s;">
+                <div class="relative rounded-sm overflow-hidden border border-brand-cyan/30 shadow-[0_0_40px_rgba(37,189,228,0.15)] bg-black p-1">
+                    <div style="position: relative; padding-top: 56.25%; width: 100%;">
+                        <iframe src="https://kinescope.io/embed/2iVtoY96mKA8w3WYYXH7eR" allow="autoplay; fullscreen; picture-in-picture; encrypted-media; gyroscope; accelerometer; clipboard-write; screen-wake-lock;" frameborder="0" allowfullscreen style="position: absolute; width: 100%; height: 100%; top: 0; left: 0;"></iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NEW SCREEN: INTERACTIVE COMMERCIAL PROPOSAL (ICP WIZARD) -->
+    <section id="icp-wizard" class="py-24 bg-[#06080b] relative border-y border-white/5 overflow-hidden">
+        <div class="max-w-5xl mx-auto px-6 md:px-12 relative z-10">
+            <div class="text-center mb-12 fade-in-up">
+                <div class="flex items-center justify-center gap-4 mb-4">
+                    <div class="w-8 h-[2px] bg-brand-cyan"></div>
+                    <span class="uppercase tracking-widest text-xs font-bold text-brand-cyan">Интерактивный расчет</span>
+                    <div class="w-8 h-[2px] bg-brand-cyan"></div>
+                </div>
+                <h2 class="text-3xl md:text-5xl font-bold text-white mb-6">Соберите свое предложение</h2>
+                <p class="text-gray-400 text-lg max-w-2xl mx-auto">Пройдите 4 коротких шага, чтобы увидеть реальную экономику работы с CFO на аутсорсе и получить именной расчет.</p>
+            </div>
+
+            <div class="bg-[#0B0D12] border border-white/10 rounded-md shadow-2xl fade-in-up relative overflow-hidden">
+                
+                <!-- Progress Bar -->
+                <div class="w-full h-1.5 bg-white/5 relative z-20">
+                    <div id="icp-progress" class="progress-bar-fill h-full bg-brand-cyan w-[25%] shadow-[0_0_10px_#25BDE4]"></div>
+                </div>
+                
+                <!-- Steps Header (Tabs) -->
+                <div class="grid grid-cols-4 border-b border-white/10 bg-[#06080b]/50">
+                    <div class="py-4 px-2 text-center text-[10px] md:text-xs font-bold uppercase tracking-widest text-brand-cyan border-b-2 border-brand-cyan step-tab" data-step="1">1. Профиль</div>
+                    <div class="py-4 px-2 text-center text-[10px] md:text-xs font-bold uppercase tracking-widest text-gray-500 border-b-2 border-transparent step-tab" data-step="2">2. Экономика</div>
+                    <div class="py-4 px-2 text-center text-[10px] md:text-xs font-bold uppercase tracking-widest text-gray-500 border-b-2 border-transparent step-tab" data-step="3">3. Риски</div>
+                    <div class="py-4 px-2 text-center text-[10px] md:text-xs font-bold uppercase tracking-widest text-gray-500 border-b-2 border-transparent step-tab" data-step="4">4. Оффер</div>
+                </div>
+
+                <div class="p-8 md:p-12 relative min-h-[450px]">
+                    
+                    <!-- STEP 1: Personalization -->
+                    <div id="step-1" class="icp-step active">
+                        <h3 class="text-2xl font-bold text-white mb-8">Масштаб вашего бизнеса</h3>
+                        
+                        <div class="space-y-10">
+                            <!-- Industry -->
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Отрасль</label>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                    <button type="button" class="icp-industry-btn px-4 py-3 border border-brand-cyan bg-brand-cyan/10 text-brand-cyan font-bold text-sm rounded-sm transition-all" data-val="production">Производство</button>
+                                    <button type="button" class="icp-industry-btn px-4 py-3 border border-white/10 text-gray-400 hover:border-white/30 font-bold text-sm rounded-sm transition-all" data-val="trade">Торговля / E-com</button>
+                                    <button type="button" class="icp-industry-btn px-4 py-3 border border-white/10 text-gray-400 hover:border-white/30 font-bold text-sm rounded-sm transition-all" data-val="services">Услуги / IT</button>
+                                    <button type="button" class="icp-industry-btn px-4 py-3 border border-white/10 text-gray-400 hover:border-white/30 font-bold text-sm rounded-sm transition-all" data-val="build">Строительство</button>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                                <!-- Revenue -->
+                                <div>
+                                    <div class="flex justify-between items-end mb-4">
+                                        <label class="block text-xs font-bold uppercase tracking-widest text-gray-400">Годовая выручка</label>
+                                        <div class="flex items-center gap-2">
+                                            <input type="number" id="icp-rev-input" value="250" min="50" max="10000" class="w-24 bg-transparent border-b border-white/30 focus:border-brand-cyan text-right text-xl font-bold text-white focus:outline-none">
+                                            <span class="text-gray-400 font-medium">млн ₽</span>
+                                        </div>
+                                    </div>
+                                    <input type="range" id="icp-rev-slider" class="calc-slider w-full" min="50" max="10000" step="50" value="250">
+                                </div>
+
+                                <!-- Entities -->
+                                <div>
+                                    <label class="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-4">Количество юр. лиц</label>
+                                    <div class="flex items-center border border-white/20 rounded-sm w-max">
+                                        <button type="button" id="icp-ent-minus" class="w-12 h-12 flex items-center justify-center text-white hover:bg-white/10 border-r border-white/20"><i data-lucide="minus" class="w-4 h-4"></i></button>
+                                        <input type="number" id="icp-ent-input" min="1" max="20" value="2" class="w-16 h-12 bg-transparent text-center text-xl font-bold text-white focus:outline-none" readonly>
+                                        <button type="button" id="icp-ent-plus" class="w-12 h-12 flex items-center justify-center text-white hover:bg-white/10 border-l border-white/20"><i data-lucide="plus" class="w-4 h-4"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-12 text-right">
+                            <button class="icp-next-btn px-8 py-3.5 bg-brand-cyan text-brand-dark font-bold text-xs uppercase tracking-widest hover:bg-white transition-all shadow-lg inline-flex items-center gap-2" data-next="2">
+                                Сравнить затраты <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- STEP 2: Economy Comparison -->
+                    <div id="step-2" class="icp-step">
+                        <h3 class="text-2xl font-bold text-white mb-2">Штат vs Аутсорс</h3>
+                        <p class="text-gray-400 text-sm mb-8">Сколько вы тратите на финансовый контроль сейчас.</p>
+                        
+                        <div class="bg-black/30 p-6 rounded-sm border border-white/5 mb-8">
+                            <div class="flex justify-between items-end mb-4">
+                                <label class="block text-xs font-bold uppercase tracking-widest text-gray-400">Рыночная ЗП штатного финдиректора (в мес)</label>
+                                <div class="text-xl font-bold text-white tabular-nums"><span id="icp-salary-display">250 000</span> ₽</div>
+                            </div>
+                            <input type="range" id="icp-salary-slider" class="calc-slider w-full mb-2" min="100000" max="600000" step="10000" value="250000">
+                            <div class="text-right text-[10px] text-gray-500 uppercase">+ налоги (43%) и инфраструктура</div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+                            <!-- In-house Cost -->
+                            <div class="border border-red-500/30 bg-red-500/5 p-6 rounded-sm">
+                                <div class="text-xs font-bold uppercase tracking-widest text-red-400 mb-2">Штатный CFO (Год)</div>
+                                <div class="text-3xl font-extrabold text-white mb-2 tabular-nums" id="icp-staff-year">0 ₽</div>
+                                <ul class="space-y-2 mt-4">
+                                    <li class="flex items-center gap-2 text-xs text-gray-400"><i data-lucide="x" class="w-3 h-3 text-red-400"></i> Риск ухода в декрет / отпуск</li>
+                                    <li class="flex items-center gap-2 text-xs text-gray-400"><i data-lucide="x" class="w-3 h-3 text-red-400"></i> Оплата больничных и налогов</li>
+                                </ul>
+                            </div>
+                            <!-- Outsource Cost -->
+                            <div class="border border-brand-cyan/50 bg-brand-cyan/10 p-6 rounded-sm relative overflow-hidden">
+                                <div class="absolute top-0 right-0 bg-brand-cyan text-brand-dark text-[9px] font-bold uppercase px-2 py-1">Выбор 80% клиентов</div>
+                                <div class="text-xs font-bold uppercase tracking-widest text-brand-cyan mb-2">Смыкова на аутсорсе</div>
+                                <div class="text-3xl font-extrabold text-white mb-2 tabular-nums">от 1,44 млн ₽</div>
+                                <ul class="space-y-2 mt-4">
+                                    <li class="flex items-center gap-2 text-xs text-gray-300"><i data-lucide="check" class="w-3 h-3 text-brand-cyan"></i> Целая команда за цену 0.5 сотрудника</li>
+                                    <li class="flex items-center gap-2 text-xs text-gray-300"><i data-lucide="check" class="w-3 h-3 text-brand-cyan"></i> 0₽ скрытых расходов и налогов</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col md:flex-row justify-between items-center gap-6 border-t border-white/10 pt-6">
+                            <div class="text-left w-full">
+                                <div class="text-xs font-bold uppercase tracking-widest text-gray-400">Ваша прямая экономия:</div>
+                                <div class="text-2xl font-bold text-brand-cyan" id="icp-savings-display">До 3 500 000 ₽ в год</div>
+                            </div>
+                            <div class="flex gap-4 shrink-0 w-full md:w-auto">
+                                <button class="icp-prev-btn px-6 py-3.5 border border-white/20 text-white font-bold text-xs uppercase tracking-widest hover:bg-white/10 transition-all" data-prev="1">Назад</button>
+                                <button class="icp-next-btn px-8 py-3.5 bg-brand-cyan text-brand-dark font-bold text-xs uppercase tracking-widest hover:bg-white transition-all shadow-lg inline-flex items-center gap-2" data-next="3">
+                                    Аудит рисков <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 3: Risk Simulator -->
+                    <div id="step-3" class="icp-step">
+                        <h3 class="text-2xl font-bold text-white mb-2">Аудит слепых зон</h3>
+                        <p class="text-gray-400 text-sm mb-8">Ответьте на 3 вопроса, чтобы увидеть скрытые убытки вашего бизнеса.</p>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">Средняя маржинальность (%)</label>
+                                <input type="number" id="icp-margin" value="25" min="1" max="95" class="w-full bg-[#0B0D12] border border-white/20 text-white font-bold text-xl p-3 rounded-sm focus:outline-none focus:border-brand-cyan">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-3">Кассовые разрывы в год (млн ₽)</label>
+                                <input type="number" id="icp-gaps" value="10" min="0" max="5000" class="w-full bg-[#0B0D12] border border-white/20 text-white font-bold text-xl p-3 rounded-sm focus:outline-none focus:border-brand-cyan">
+                            </div>
+                        </div>
+
+                        <div class="space-y-5 mb-8">
+                            <div class="flex justify-between items-center gap-4 bg-white/5 p-4 rounded-sm border border-white/10">
+                                <div class="text-white text-sm md:text-base font-medium">1. Вы уверены в достоверности цифр учета и отчетности?</div>
+                                <div class="flex gap-2 shrink-0">
+                                    <button type="button" class="icp-r1 px-4 py-1.5 rounded-sm border border-white/20 text-white font-bold text-xs" data-val="yes">Да</button>
+                                    <button type="button" class="icp-r1 px-4 py-1.5 rounded-sm border border-brand-cyan bg-brand-cyan/20 text-brand-cyan font-bold text-xs" data-val="no">Нет</button>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center gap-4 bg-white/5 p-4 rounded-sm border border-white/10">
+                                <div class="text-white text-sm md:text-base font-medium">2. Знаете ли вы реальную маржинальность каждой единицы?</div>
+                                <div class="flex gap-2 shrink-0">
+                                    <button type="button" class="icp-r2 px-4 py-1.5 rounded-sm border border-white/20 text-white font-bold text-xs" data-val="yes">Да</button>
+                                    <button type="button" class="icp-r2 px-4 py-1.5 rounded-sm border border-brand-cyan bg-brand-cyan/20 text-brand-cyan font-bold text-xs" data-val="no">Нет</button>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center gap-4 bg-white/5 p-4 rounded-sm border border-white/10">
+                                <div class="text-white text-sm md:text-base font-medium">3. Бывают ли у вас неожиданные кассовые разрывы?</div>
+                                <div class="flex gap-2 shrink-0">
+                                    <button type="button" class="icp-r3 px-4 py-1.5 rounded-sm border border-brand-cyan bg-brand-cyan/20 text-brand-cyan font-bold text-xs" data-val="yes">Да</button>
+                                    <button type="button" class="icp-r3 px-4 py-1.5 rounded-sm border border-white/20 text-white font-bold text-xs" data-val="no">Нет</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col md:flex-row items-center justify-between gap-6 border-t border-white/10 pt-6">
+                            <div class="text-left w-full">
+                                <div class="text-xs font-bold uppercase tracking-widest text-red-400">Возможные потери прибыли в год:</div>
+                                <div class="text-2xl font-bold text-white tabular-nums" id="icp-loss-display">0 ₽</div>
+                            </div>
+                            <div class="flex gap-4 shrink-0 w-full md:w-auto">
+                                <button class="icp-prev-btn px-6 py-3.5 border border-white/20 text-white font-bold text-xs uppercase tracking-widest hover:bg-white/10 transition-all" data-prev="2">Назад</button>
+                                <button class="icp-next-btn px-8 py-3.5 bg-brand-cyan text-brand-dark font-bold text-xs uppercase tracking-widest hover:bg-white transition-all shadow-lg inline-flex items-center gap-2" data-next="4">
+                                    Получить оффер <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- STEP 4: Final Offer -->
+                    <div id="step-4" class="icp-step">
+                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                            <div>
+                                <h3 class="text-2xl font-bold text-white mb-2">Ваше персональное КП</h3>
+                                <p class="text-gray-400 text-sm mb-6">Выберите задачу, чтобы зафиксировать стоимость со скидкой.</p>
+                                
+                                <div class="space-y-3 mb-8">
+                                    <label class="cursor-pointer relative block">
+                                        <input type="radio" name="icp-service" value="audit" class="peer hidden">
+                                        <div class="p-4 border border-white/20 rounded-sm peer-checked:border-brand-cyan peer-checked:bg-brand-cyan/10 transition-all">
+                                            <div class="font-bold text-white">Экспресс-аудит учета</div>
+                                        </div>
+                                    </label>
+                                    <label class="cursor-pointer relative block">
+                                        <input type="radio" name="icp-service" value="model" class="peer hidden">
+                                        <div class="p-4 border border-white/20 rounded-sm peer-checked:border-brand-cyan peer-checked:bg-brand-cyan/10 transition-all">
+                                            <div class="font-bold text-white">Разработка фин. модели</div>
+                                        </div>
+                                    </label>
+                                    <label class="cursor-pointer relative block">
+                                        <input type="radio" name="icp-service" value="support" class="peer hidden">
+                                        <div class="p-4 border border-white/20 rounded-sm peer-checked:border-brand-cyan peer-checked:bg-brand-cyan/10 transition-all">
+                                            <div class="font-bold text-white">CFO Support (Ежемесячно)</div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-brand-cyan p-8 rounded-sm shadow-xl flex flex-col justify-center">
+                                <div class="text-brand-dark mb-6">
+                                    <div class="text-xs font-bold uppercase tracking-widest opacity-70 mb-1">Специальная цена</div>
+                                    <div class="text-4xl font-extrabold tabular-nums flex items-end gap-3" id="icp-final-price">
+                                        <span>--- ₽</span>
+                                    </div>
+                                    <div class="text-sm font-medium mt-2 flex items-center gap-2">
+                                        <i data-lucide="tag" class="w-4 h-4"></i> Ваша скидка: <span id="icp-discount-pct" class="font-bold">0%</span>
+                                    </div>
+                                </div>
+
+                                <div class="bg-white/20 p-4 mb-6 rounded-sm flex items-center gap-3">
+                                    <i data-lucide="clock" class="w-6 h-6 text-brand-dark"></i>
+                                    <div>
+                                        <div class="text-xs font-bold uppercase text-brand-dark">Оффер сгорает через</div>
+                                        <div class="text-xl font-bold text-brand-dark tabular-nums" id="icp-timer">24:00:00</div>
+                                    </div>
+                                </div>
+
+                                <form id="icp-form" class="space-y-3">
+                                    <input type="email" required placeholder="Email для отправки КП" class="w-full bg-white border-none text-brand-dark py-3.5 px-4 text-sm focus:outline-none rounded-sm">
+                                    <button type="submit" class="w-full py-4 bg-brand-dark text-white font-bold uppercase text-xs tracking-widest hover:bg-black transition-colors shadow-lg">
+                                        Получить именной расчет
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="mt-6 flex justify-start">
+                            <button class="icp-prev-btn px-6 py-3.5 border border-white/20 text-gray-400 font-bold text-xs uppercase tracking-widest hover:bg-white/10 hover:text-white transition-all" data-prev="3">Назад</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3D Animation: Chaos to Order -->
+    <section id="3d-concept" class="relative bg-brand-dark py-24 overflow-hidden border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6 md:px-12 relative z-10 text-center mb-10 fade-in-up">
+            <h2 class="text-3xl md:text-5xl font-bold text-white mb-4">
+                Хаос в деньгах <span class="text-brand-cyan">упорядочивается</span>
+            </h2>
+            <p class="text-gray-400 text-lg max-w-2xl mx-auto">
+                Превращаю разрозненные транзакции, долги и кассовые разрывы в прозрачную и прогнозируемую финансовую систему.
+            </p>
+        </div>
+        
+        <div class="relative w-full max-w-5xl mx-auto rounded-sm overflow-hidden shadow-2xl border border-white/10 fade-in-up">
+            <div id="canvas-container" class="w-full h-[400px] md:h-[500px]"></div>
+        </div>
+    </section>
+
+    <!-- SCREEN 4. About -->
+    <section id="about" class="py-24 bg-white overflow-hidden relative">
+        <div class="max-w-5xl mx-auto px-6 md:px-12">
+            <div class="text-center mb-12 md:mb-16 fade-in-up">
+                <div class="flex items-center justify-center gap-4 mb-4">
+                    <div class="w-8 h-[2px] bg-brand-cyan"></div>
+                    <span class="uppercase tracking-widest text-xs font-bold text-gray-400">Об эксперте</span>
+                    <div class="w-8 h-[2px] bg-brand-cyan"></div>
+                </div>
+                <h2 class="text-4xl md:text-5xl font-bold text-brand-dark">
+                    Почему мне доверяют финансы
+                </h2>
+            </div>
+            
+            <div class="bg-brand-cardBg rounded-sm p-8 md:p-16 border border-brand-cyan/10 relative fade-in-up shadow-xl mx-auto max-w-4xl text-center">
+                <div class="relative z-10">
+                    <h3 class="text-2xl md:text-3xl font-bold text-brand-cyan mb-6">Елена Смыкова, CFO на аутсорсинге.</h3>
+                    <p class="text-lg md:text-xl text-gray-600 leading-relaxed mb-10 max-w-3xl mx-auto">
+                        Самое важное — это доверие цифрам. Я не просто свожу таблицы, я помогаю собственнику видеть реальную картину и выявлять слабые места в учете.
+                    </p>
+                    <ul class="space-y-5 mb-12 max-w-2xl mx-auto text-left">
+                        <li class="flex items-center gap-4 border-b border-gray-200 pb-4">
+                            <i data-lucide="check" class="w-5 h-5 text-brand-cyan"></i>
+                            <span class="text-base font-medium text-brand-dark">Независимая оценка работы штатной бухгалтерии.</span>
+                        </li>
+                        <li class="flex items-center gap-4 border-b border-gray-200 pb-4">
+                            <i data-lucide="check" class="w-5 h-5 text-brand-cyan"></i>
+                            <span class="text-base font-medium text-brand-dark">Глубокий анализ финансовых показателей.</span>
+                        </li>
+                        <li class="flex items-center gap-4 border-b border-gray-200 pb-4">
+                            <i data-lucide="check" class="w-5 h-5 text-brand-cyan"></i>
+                            <span class="text-base font-medium text-brand-dark">Перевод сложных отчетов в бизнес-систему.</span>
+                        </li>
+                    </ul>
+                    <div class="flex justify-center gap-16 md:gap-24 pt-6">
+                        <div>
+                            <div class="text-4xl md:text-5xl font-extrabold text-brand-dark">100<span class="text-2xl md:text-3xl font-bold text-brand-cyan">%</span></div>
+                            <div class="text-xs font-bold uppercase tracking-widest text-gray-500 mt-2">Контроль активов</div>
+                        </div>
+                        <div>
+                            <div class="text-4xl md:text-5xl font-extrabold text-brand-dark">0<span class="text-2xl md:text-3xl font-bold text-brand-cyan">%</span></div>
+                            <div class="text-xs font-bold uppercase tracking-widest text-gray-500 mt-2">Слепых зон</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contacts Footer -->
+    <section id="contacts" class="bg-brand-dark py-24 text-white relative">
+        <div class="max-w-4xl mx-auto px-6 text-center fade-in-up relative z-10">
+            <h2 class="text-4xl md:text-5xl font-bold mb-6">Навести порядок в финансах</h2>
+            <form id="contact-form" class="flex flex-col md:flex-row justify-center items-end gap-6 max-w-3xl mx-auto mt-12">
+                <div class="w-full text-left relative">
+                    <label class="text-[10px] font-bold uppercase text-brand-cyan mb-2 tracking-widest">Имя</label>
+                    <input type="text" required class="input-line w-full py-3">
+                </div>
+                <div class="w-full text-left relative">
+                    <label class="text-[10px] font-bold uppercase text-brand-cyan mb-2 tracking-widest">Телефон</label>
+                    <input type="tel" required class="input-line w-full py-3">
+                </div>
+                <button type="submit" class="px-10 py-4 bg-brand-cyan text-white text-sm font-bold uppercase hover:bg-brand-cyanHover whitespace-nowrap shadow-lg">
+                    Оставить заявку
+                </button>
+            </form>
+        </div>
+    </section>
+    
+    <footer class="bg-[#06080b] py-8 px-6 text-gray-500 text-sm border-t border-white/5 text-center">
+        &copy; 2026 Елена Смыкова. Все права защищены.
+    </footer>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-white text-brand-dark px-6 py-4 rounded shadow-2xl border-l-4 border-brand-cyan z-50 flex items-center gap-3">
+        <i data-lucide="check-circle" class="w-5 h-5 text-brand-cyan"></i>
+        <span class="font-medium text-sm">Ваша заявка принята. Спасибо!</span>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        // Sticky Header
+        const header = document.getElementById('main-header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                header.classList.add('bg-brand-dark/95', 'backdrop-blur-md', 'border-b', 'border-white/10', 'py-4', 'shadow-lg');
+                header.classList.remove('py-6');
+            } else {
+                header.classList.remove('bg-brand-dark/95', 'backdrop-blur-md', 'border-b', 'border-white/10', 'py-4', 'shadow-lg');
+                header.classList.add('py-6');
+            }
+        });
+
+        // Form Submit & Intersection Observer
+        document.getElementById('contact-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            document.getElementById('toast').classList.add('show');
+            this.reset();
+            setTimeout(() => document.getElementById('toast').classList.remove('show'), 3000);
+        });
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) { entry.target.classList.add('visible'); }
+            });
+        }, { threshold: 0.15 });
+        document.querySelectorAll('.fade-in-up').forEach(el => observer.observe(el));
+
+        // Carousel
+        const carousel = document.getElementById('services-carousel');
+        document.getElementById('prevBtn')?.addEventListener('click', () => carousel.scrollBy({ left: -300, behavior: 'smooth' }));
+        document.getElementById('nextBtn')?.addEventListener('click', () => carousel.scrollBy({ left: 300, behavior: 'smooth' }));
+
+        const initICPWizard = () => {
+            // UI Elements
+            const steps = document.querySelectorAll('.icp-step');
+            const tabs = document.querySelectorAll('.step-tab');
+            const progressBar = document.getElementById('icp-progress');
+            
+            // State
+            let state = {
+                industry: 'production', revenue: 250, entities: 2,
+                staffSalary: 250000, margin: 25, gaps: 10,
+                q1: 'no', q2: 'no', q3: 'yes',
+                service: null, discount: 0
+            };
+
+            // Prices mapping
+            const basePrices = { audit: 100000, model: 75000, support: 120000 };
+
+            // Step Navigation
+            const goToStep = (stepNum) => {
+                steps.forEach((s, idx) => {
+                    s.classList.toggle('active', idx + 1 == stepNum);
+                });
+                tabs.forEach((t, idx) => {
+                    t.classList.toggle('text-brand-cyan', idx + 1 <= stepNum);
+                    t.classList.toggle('border-brand-cyan', idx + 1 <= stepNum);
+                    t.classList.toggle('text-gray-500', idx + 1 > stepNum);
+                    t.classList.toggle('border-transparent', idx + 1 > stepNum);
+                });
+                progressBar.style.width = `${stepNum * 25}%`;
+                updateCalculations(); // Recalc when entering step
+            };
+
+            document.querySelectorAll('.icp-next-btn').forEach(btn => btn.addEventListener('click', e => goToStep(e.target.dataset.next)));
+            document.querySelectorAll('.icp-prev-btn').forEach(btn => btn.addEventListener('click', e => goToStep(e.target.dataset.prev)));
+
+            // Formatters
+            const fmt = (num) => Math.round(num).toLocaleString('ru-RU');
+
+            // Step 1 Handlers
+            document.querySelectorAll('.icp-industry-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.icp-industry-btn').forEach(b => {
+                        b.classList.remove('bg-brand-cyan/10', 'border-brand-cyan', 'text-brand-cyan');
+                        b.classList.add('border-white/10', 'text-gray-400');
+                    });
+                    e.target.classList.remove('border-white/10', 'text-gray-400');
+                    e.target.classList.add('bg-brand-cyan/10', 'border-brand-cyan', 'text-brand-cyan');
+                    state.industry = e.target.dataset.val;
+                });
+            });
+
+            const revSlider = document.getElementById('icp-rev-slider');
+            const revInput = document.getElementById('icp-rev-input');
+            revSlider.addEventListener('input', e => { revInput.value = e.target.value; state.revenue = +e.target.value; });
+            revInput.addEventListener('input', e => { revSlider.value = e.target.value; state.revenue = +e.target.value; });
+
+            const entInput = document.getElementById('icp-ent-input');
+            document.getElementById('icp-ent-plus').addEventListener('click', () => { entInput.value = Math.min(20, +entInput.value + 1); state.entities = +entInput.value; });
+            document.getElementById('icp-ent-minus').addEventListener('click', () => { entInput.value = Math.max(1, +entInput.value - 1); state.entities = +entInput.value; });
+
+            // Step 2 Handlers
+            const salarySlider = document.getElementById('icp-salary-slider');
+            const salaryDisplay = document.getElementById('icp-salary-display');
+            salarySlider.addEventListener('input', e => { 
+                state.staffSalary = +e.target.value; 
+                salaryDisplay.textContent = fmt(state.staffSalary);
+                updateCalculations();
+            });
+
+            // Step 3 Handlers
+            document.getElementById('icp-margin').addEventListener('input', e => { state.margin = +e.target.value; updateCalculations(); });
+            document.getElementById('icp-gaps').addEventListener('input', e => { state.gaps = +e.target.value; updateCalculations(); });
+
+            const setupToggle = (cls, key) => {
+                document.querySelectorAll(`.${cls}`).forEach(btn => {
+                    btn.addEventListener('click', e => {
+                        document.querySelectorAll(`.${cls}`).forEach(b => {
+                            b.classList.remove('bg-brand-cyan/20', 'border-brand-cyan', 'text-brand-cyan');
+                            b.classList.add('border-white/20', 'text-white');
+                        });
+                        e.target.classList.remove('border-white/20', 'text-white');
+                        e.target.classList.add('bg-brand-cyan/20', 'border-brand-cyan', 'text-brand-cyan');
+                        state[key] = e.target.dataset.val;
+                        updateCalculations();
+                    });
+                });
+            };
+            setupToggle('icp-r1', 'q1'); setupToggle('icp-r2', 'q2'); setupToggle('icp-r3', 'q3');
+
+            // Step 4 Handlers
+            document.querySelectorAll('input[name="icp-service"]').forEach(radio => {
+                radio.addEventListener('change', e => { state.service = e.target.value; updateCalculations(); });
+            });
+
+            // Timer
+            let timeLeft = 24 * 60 * 60;
+            setInterval(() => {
+                if(timeLeft <= 0) return;
+                timeLeft--;
+                const h = Math.floor(timeLeft / 3600).toString().padStart(2, '0');
+                const m = Math.floor((timeLeft % 3600) / 60).toString().padStart(2, '0');
+                const s = (timeLeft % 60).toString().padStart(2, '0');
+                document.getElementById('icp-timer').textContent = `${h}:${m}:${s}`;
+            }, 1000);
+
+            // Core Logic Updater
+            const updateCalculations = () => {
+                // Calc Step 2: Staff vs Outsource
+                const taxesAndInfra = 1.43; 
+                const annualStaff = state.staffSalary * taxesAndInfra * 12 + (15000 * 12); // + office/soft
+                document.getElementById('icp-staff-year').textContent = `~${(annualStaff/1000000).toFixed(1)} млн ₽`;
+                const savings = annualStaff - 1440000;
+                document.getElementById('icp-savings-display').textContent = `до ${fmt(Math.max(0, savings))} ₽ в год`;
+
+                // Calc Step 3: Risk Simulator
+                let riskMultiplier = 0;
+                if(state.q1 === 'no') riskMultiplier += 0.03;
+                if(state.q2 === 'no') riskMultiplier += 0.05;
+                if(state.q3 === 'yes') riskMultiplier += 0.04;
+                
+                let loss = (state.revenue * (state.margin/100) * riskMultiplier) + (state.gaps * 0.15);
+                document.getElementById('icp-loss-display').textContent = `${loss.toFixed(1)} млн ₽`;
+
+                // Calc Step 4: Final Offer Discount
+                let baseDiscount = 15;
+                if(state.revenue < 500) baseDiscount += 5;
+                if(state.revenue > 2000) baseDiscount -= 5;
+                if(state.entities > 1) baseDiscount -= (state.entities * 1.5);
+                
+                state.discount = Math.max(5, Math.min(30, Math.floor(baseDiscount)));
+                
+                const finalPriceEl = document.getElementById('icp-final-price');
+                const discountPctEl = document.getElementById('icp-discount-pct');
+
+                if(state.service) {
+                    const price = basePrices[state.service];
+                    const discountedPrice = price * (1 - state.discount/100);
+                    finalPriceEl.innerHTML = `${fmt(discountedPrice)} <span class="text-xl font-bold opacity-50 line-through">${fmt(price)}</span>`;
+                    discountPctEl.textContent = `${state.discount}%`;
+                } else {
+                    finalPriceEl.innerHTML = `--- ₽`;
+                    discountPctEl.textContent = `0%`;
+                }
+            };
+
+            // Submit Form
+            document.getElementById('icp-form').addEventListener('submit', e => {
+                e.preventDefault();
+                if(!state.service) return alert('Пожалуйста, выберите услугу для расчета.');
+                const toast = document.getElementById('toast');
+                toast.querySelector('span').innerText = `Именное КП и промокод отправлены на вашу почту!`;
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 4000);
+            });
+
+            updateCalculations();
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initICPWizard();
+            
+            const container = document.getElementById('canvas-container');
+            if(!container) return;
+            const scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x0B0D12, 0.02);
+            const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+            camera.position.set(0, 5, 25);
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            renderer.setSize(container.clientWidth, container.clientHeight);
+            container.appendChild(renderer.domElement);
+
+            scene.add(new THREE.AmbientLight(0xffffff, 0.7));
+            const pointLight = new THREE.PointLight(0xffd700, 1.5);
+            pointLight.position.set(-10, -10, -10);
+            scene.add(pointLight);
+
+            const coinGeo = new THREE.CylinderGeometry(1.2, 1.2, 0.15, 32);
+            const coinMat = new THREE.MeshStandardMaterial({ color: 0xffd700, metalness: 0.95, roughness: 0.15 });
+
+            const coins = [];
+            for (let i = 0; i < 40; i++) {
+                const coin = new THREE.Mesh(coinGeo, coinMat);
+                const chaosPos = new THREE.Vector3((Math.random() - 0.5)*30, (Math.random() - 0.5)*15, (Math.random() - 0.5)*20);
+                const orderPos = new THREE.Vector3((i%5 - 2) * 3.5, (Math.floor(i/5) - 4) * 1.5, 0);
+                const chaosRot = new THREE.Euler(Math.random()*Math.PI, Math.random()*Math.PI, Math.random()*Math.PI);
+                
+                coin.position.copy(chaosPos); coin.rotation.copy(chaosRot);
+                scene.add(coin);
+                coins.push({ mesh: coin, chaosPos, orderPos, chaosRot, orderRot: new THREE.Euler(Math.PI/2, 0, 0), speed: 0.02 + Math.random()*0.02 });
+            }
+
+            let progress = 0, isOrdered = false;
+            new IntersectionObserver(entries => {
+                isOrdered = entries[0].isIntersecting;
+            }, { threshold: 0.3 }).observe(document.getElementById('3d-concept'));
+
+            const animate = () => {
+                requestAnimationFrame(animate);
+                progress += ( (isOrdered ? 1 : 0) - progress ) * 0.03;
+                const time = Date.now() * 0.001;
+
+                coins.forEach(c => {
+                    const fY = Math.sin(time * c.speed * 10) * 0.5, fX = Math.cos(time * c.speed * 8) * 0.5;
+                    c.mesh.position.lerpVectors(new THREE.Vector3(c.chaosPos.x+fX, c.chaosPos.y+fY, c.chaosPos.z), c.orderPos, progress);
+                    const qC = new THREE.Quaternion().setFromEuler(new THREE.Euler(c.chaosRot.x+fY, c.chaosRot.y+fX, c.chaosRot.z));
+                    const qO = new THREE.Quaternion().setFromEuler(new THREE.Euler(c.orderRot.x, c.orderRot.y+Math.sin(time)*0.1, c.orderRot.z));
+                    c.mesh.quaternion.slerpQuaternions(qC, qO, progress);
+                });
+                
+                scene.rotation.y = Math.sin(Date.now() * 0.0005) * 0.1;
+                renderer.render(scene, camera);
+            };
+            animate();
+        });
+    </script>
+</body>
+</html>
